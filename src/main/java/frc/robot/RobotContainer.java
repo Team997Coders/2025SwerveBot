@@ -12,6 +12,7 @@ import swervelib.imu.NavXSwerve;
 
 //import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.events.PointTowardsZoneTrigger;
 import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -20,6 +21,7 @@ import com.studica.frc.AHRS;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -31,7 +33,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.GoToTag;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -69,15 +70,24 @@ public class RobotContainer {
             drivebase,
             () -> getScaledXY(),
             () -> scaleRotationAxis(driveStick.getRawAxis(4))));
-    Command goToTag = new GoToTag(drivebase, frontCamera, 2.0);
 
     JoystickButton button_a = new JoystickButton(driveStick, 1);
-    button_a.onTrue(goToTag);
     
     autoChooser = AutoBuilder.buildAutoChooser("Leave");
-    SmartDashboard.putData("Auto Choser", autoChooser);
+    SmartDashboard.putData("Auto Chooser", autoChooser);
 
-    //TODO: need to register autos so they show up on auto chooser
+    new PointTowardsZoneTrigger("Speaker").whileTrue(Commands.print("aiming at speaker"));
+    new PointTowardsZoneTrigger("Amp").whileTrue(Commands.print("aiming at amp"));
+
+    //autoCommand.isRunning().onTrue(Commands.print("Example Auto started"));
+    //autoCommand.timeElapsed(5).onTrue(Commands.print("5 seconds passed"));
+    //autoCommand.timeRange(6, 8).whileTrue(Commands.print("between 6 and 8 seconds"));
+    //autoCommand.event("Example Event Marker").onTrue(Commands.print("passed example event marker"));
+    //autoCommand.pointTowardsZone("Speaker").onTrue(Commands.print("aiming at speaker"));
+    //autoCommand.activePath("Example Path").onTrue(Commands.print("started following Example Path"));
+    //autoCommand.nearFieldPosition(new Translation2d(2, 2), 0.5).whileTrue(Commands.print("within 0.5m of (2, 2)"));
+    //autoCommand.inFieldArea(new Translation2d(2, 2), new Translation2d(4, 4)).whileTrue(Commands.print("in area of (2, 2) - (4, 4)"));
+
     //Also register Mechanisms so they work 
     //EX: NamedCommands.registerCommand("Intake", new Intake(indexer));
 
@@ -190,8 +200,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    //PathPlannerPath path = PathPlannerPath.fromPathFile("Leave");
     return autoChooser.getSelected();
-    //return AutoBuilder.followPath(path);
   }
 }
