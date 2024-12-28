@@ -5,7 +5,8 @@
 package frc.robot.subsystems;
 
 import com.studica.frc.AHRS;
-import swervelib.SwerveModule;
+import swervelib.SwerveModuleThingy;
+import swervelib.SwerveModuleConfig;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -37,13 +38,13 @@ public class Drivebase extends SubsystemBase {
 
   private AHRS gyro;
 
-  private SwerveModule frontLeft = new SwerveModule(SwerveModules.frontLeft, MAX_VELOCITY, MAX_VOLTAGE);
-  private SwerveModule frontRight = new SwerveModule(SwerveModules.frontRight, MAX_VELOCITY, MAX_VOLTAGE);
-  private SwerveModule backLeft = new SwerveModule(SwerveModules.backLeft, MAX_VELOCITY, MAX_VOLTAGE);
-  private SwerveModule backRight = new SwerveModule(SwerveModules.backRight, MAX_VELOCITY, MAX_VOLTAGE);
+  private SwerveModuleThingy frontLeft = new SwerveModuleThingy(SwerveModules.frontLeft, MAX_VELOCITY, MAX_VOLTAGE);
+  private SwerveModuleThingy frontRight = new SwerveModuleThingy(SwerveModules.frontRight, MAX_VELOCITY, MAX_VOLTAGE);
+  private SwerveModuleThingy backLeft = new SwerveModuleThingy(SwerveModules.backLeft, MAX_VELOCITY, MAX_VOLTAGE);
+  private SwerveModuleThingy backRight = new SwerveModuleThingy(SwerveModules.backRight, MAX_VELOCITY, MAX_VOLTAGE);
 
   //                                                       0           1          2         3
-  private SwerveModule[] modules = new SwerveModule[] { frontLeft, frontRight, backLeft, backRight };
+  private SwerveModuleThingy[] modules = new SwerveModuleThingy[] { frontLeft, frontRight, backLeft, backRight };
 
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
       ModuleLocations.frontLeft,
@@ -65,9 +66,10 @@ public class Drivebase extends SubsystemBase {
   private BooleanEntry fieldOrientedEntry;
 
   private Camera frontCamera;
+  private Camera backCamera;
 
   /** Creates a new Drivebase. */
-  public Drivebase(AHRS gyro, Camera frontCamera) {
+  public Drivebase(AHRS gyro, Camera frontCamera, Camera backCamera) {
     var inst = NetworkTableInstance.getDefault();
     var table = inst.getTable("SmartDashboard");
     this.fieldOrientedEntry = table.getBooleanTopic("Field Oriented").getEntry(true);
@@ -78,6 +80,7 @@ public class Drivebase extends SubsystemBase {
     poseEstimator = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), getPositions(), odometry.getPoseMeters());
 
     this.frontCamera = frontCamera;
+    this.backCamera = backCamera;
     
     SmartDashboard.putData("Field", field);        
   }
@@ -177,5 +180,6 @@ public class Drivebase extends SubsystemBase {
     poseEstimator.update(gyro.getRotation2d(), positions);
     
     this.frontCamera.update(poseEstimator);
+    this.backCamera.update(poseEstimator);
   }
 }

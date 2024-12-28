@@ -20,16 +20,15 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.Constants.DriveConstants.SwervePID;
 
 /** Add your docs here. */
-public class SwerveModule {
+public class SwerveModuleThingy {
   private SparkMax angleMotor;
   private SparkMax speedMotor;
   private RelativeEncoder speedEncoder;
   private PIDController pidController;
-  private SparkAbsoluteEncoder encoder;
   private double maxVelocity;
   private double maxVoltage;
 
-  public SwerveModule(int angleMotorId, int speedMotorId, boolean driveMotorReversed, boolean angleMotorReversed,
+  public SwerveModuleThingy(int angleMotorId, int speedMotorId, boolean driveMotorReversed, boolean angleMotorReversed,
       boolean angleEncoderReversed, double angleEncoderConversionFactor, double angleEncoderOffset,
       double maxVelocity, double maxVoltage) {
     this.angleMotor = new SparkMax(angleMotorId, MotorType.kBrushless);
@@ -45,7 +44,7 @@ public class SwerveModule {
         angleMotorConfig
           .inverted(angleMotorReversed)
           .idleMode(IdleMode.kCoast);
-        angleMotorConfig.encoder
+        angleMotorConfig.absoluteEncoder
           .positionConversionFactor(1)
           .velocityConversionFactor(1)
           .inverted(angleEncoderReversed);
@@ -63,14 +62,13 @@ public class SwerveModule {
     this.speedMotor.configure(speedMotorConfig, null, null);
 
     this.pidController = new PIDController(SwervePID.p, SwervePID.i, SwervePID.d);
-    this.encoder = this.angleMotor.getAbsoluteEncoder();
     this.maxVelocity = maxVelocity;
     this.maxVoltage = maxVoltage;
 
     this.pidController.enableContinuousInput(-180, 180);
   }
 
-  public SwerveModule(SwerveModuleConfig config, double maxVelocity, double maxVoltage) {
+  public SwerveModuleThingy(SwerveModuleConfig config, double maxVelocity, double maxVoltage) {
     this(config.angleMotorId,
         config.driveMotorId,
         config.driveMotorReversed,
@@ -123,7 +121,7 @@ public class SwerveModule {
    *         Straight Forward should be 0 (with the addjustment of module offset)
    */
   public double getEncoder() {
-    return encoder.getPosition() * 360.0;
+    return this.angleMotor.getEncoder().getPosition() * 360;
   }
 
   /*

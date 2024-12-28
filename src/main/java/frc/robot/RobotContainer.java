@@ -24,6 +24,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
@@ -56,6 +57,7 @@ public class RobotContainer {
   //private static CommandXboxController c_driveStick = new CommandXboxController(0);
 
   private static final Camera frontCamera = new Camera("pineapple", new Transform3d(new Translation3d(0.254, 0, 0.1524), new Rotation3d(0, -0.785, 0)));
+  private static final Camera backCamera = new Camera("dragonfruit", new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, -0.785, Math.PI)));
 
   private SendableChooser<Command> autoChooser;
 
@@ -75,11 +77,11 @@ public class RobotContainer {
 
     JoystickButton button_a = new JoystickButton(driveStick, 1);
     
-    autoChooser = AutoBuilder.buildAutoChooser("Leave");
-    SmartDashboard.putData("Auto Chooser", autoChooser);
+    //autoChooser = AutoBuilder.buildAutoChooser("Leave");
+    //SmartDashboard.putData("Auto Chooser", autoChooser);
 
-    new PointTowardsZoneTrigger("Speaker").whileTrue(Commands.print("aiming at speaker"));
-    new PointTowardsZoneTrigger("Amp").whileTrue(Commands.print("aiming at amp"));
+    //new PointTowardsZoneTrigger("Speaker").whileTrue(Commands.print("aiming at speaker"));
+    //new PointTowardsZoneTrigger("Amp").whileTrue(Commands.print("aiming at amp"));
 
     //autoCommand.isRunning().onTrue(Commands.print("Example Auto started"));
     //autoCommand.timeElapsed(5).onTrue(Commands.print("5 seconds passed"));
@@ -92,8 +94,6 @@ public class RobotContainer {
 
     //Also register Mechanisms so they work 
     //EX: NamedCommands.registerCommand("Intake", new Intake(indexer));
-
-    driveStick.setRumble(RumbleType.kBothRumble, 1);
 
     configureBindings();
   }
