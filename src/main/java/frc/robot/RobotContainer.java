@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import com.pathplanner.lib.auto.AutoBuilder;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -73,6 +74,8 @@ public class RobotContainer {
             drivebase,
             () -> getScaledXY(),
             () -> scaleRotationAxis(driveStick.getRawAxis(4))));
+
+    autoChooser = AutoBuilder.buildAutoChooser("Leave");
 
     configureBindings();
   }
