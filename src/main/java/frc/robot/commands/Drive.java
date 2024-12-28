@@ -7,7 +7,6 @@ package frc.robot.commands;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drivebase;
 
@@ -24,7 +23,7 @@ public class Drive extends Command {
     this.rot = rot;
 
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(drivebase);
+    addRequirements(this.drivebase);
   }
 
   // Called when the command is initially scheduled.
@@ -37,8 +36,6 @@ public class Drive extends Command {
   public void execute() {
     var xy = speedXY.get();
     var r = rot.getAsDouble();
-
-    SmartDashboard.putBoolean("GOTOTAG RUNNING", false);
 
     drivebase.defaultDrive(-xy[1], -xy[0], r);
   }

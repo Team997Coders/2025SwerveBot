@@ -27,7 +27,6 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
   public ShuffleboardTab drive_tab;
   public ShuffleboardTab debug_tab;
-  private int autoPeriodicCount;
 
 
   /**
@@ -45,7 +44,7 @@ public class Robot extends TimedRobot {
     // and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-    //m_robotContainer.resetGyro();
+    m_robotContainer.resetGyro();
   }
 
   /**
@@ -68,7 +67,7 @@ public class Robot extends TimedRobot {
     // robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
-    //SmartDashboard.putNumber("Yaw", m_robotContainer.getGyroYaw());
+    SmartDashboard.putNumber("Yaw", m_robotContainer.getGyroYaw());
     //SmartDashboard.putBoolean("On Blue Alliance", m_robotContainer.onBlueAlliance());
     //SmartDashboard.putBoolean("Note Acquired", m_robotContainer.getBeamBreak());
 
@@ -91,7 +90,6 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-    autoPeriodicCount = 0;
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {

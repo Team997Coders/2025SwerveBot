@@ -5,70 +5,77 @@
 package swervelib;
 
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkAbsoluteEncoder;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.SparkAbsoluteEncoder;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.SwervePID;
 
 /** Add your docs here. */
-public class SwerveModuleThingy {
+public class SwerveModule {
   private SparkMax angleMotor;
   private SparkMax speedMotor;
   private RelativeEncoder speedEncoder;
   private PIDController pidController;
+  private SparkAbsoluteEncoder encoder;
   private double maxVelocity;
   private double maxVoltage;
 
-  public SwerveModuleThingy(int angleMotorId, int speedMotorId, boolean driveMotorReversed, boolean angleMotorReversed,
+  public SwerveModule(int angleMotorId, int speedMotorId, boolean driveMotorReversed, boolean angleMotorReversed,
       boolean angleEncoderReversed, double angleEncoderConversionFactor, double angleEncoderOffset,
       double maxVelocity, double maxVoltage) {
     this.angleMotor = new SparkMax(angleMotorId, MotorType.kBrushless);
     this.speedMotor = new SparkMax(speedMotorId, MotorType.kBrushless);
 
-    this.speedEncoder = this.speedMotor.getEncoder();
-    double driveReduction = 1.0 / 6.75;
-    double WHEEL_DIAMETER = 0.1016;
-    double rotationsToDistance = driveReduction * WHEEL_DIAMETER * Math.PI;
-
-    //this.encoder.setZeroOffsets(angleEncoderOffset);
-    SparkBaseConfig angleMotorConfig = new SparkMaxConfig();
-        angleMotorConfig
-          .inverted(angleMotorReversed)
-          .idleMode(IdleMode.kCoast);
-        angleMotorConfig.absoluteEncoder
-          .positionConversionFactor(1)
-          .velocityConversionFactor(1)
-          .inverted(angleEncoderReversed);
-        
-    SparkBaseConfig speedMotorConfig = new SparkMaxConfig();
-        speedMotorConfig
-          .idleMode(IdleMode.kBrake)
-          .inverted(driveMotorReversed);
-        speedMotorConfig.encoder
-          .positionConversionFactor(rotationsToDistance)
-          .velocityConversionFactor(rotationsToDistance/60);
-      
-    //Config needds: Inverted, Idle mode, zero offset, position conversion factors, velocity conversion factors, 
-    this.angleMotor.configure(angleMotorConfig, null, null);
-    this.speedMotor.configure(speedMotorConfig, null, null);
+    //this.angleMotor.restoreFactoryDefaults();
+    //this.speedMotor.restoreFactoryDefaults();
 
     this.pidController = new PIDController(SwervePID.p, SwervePID.i, SwervePID.d);
+    this.encoder = this.angleMotor.getAbsoluteEncoder();
     this.maxVelocity = maxVelocity;
     this.maxVoltage = maxVoltage;
 
     this.pidController.enableContinuousInput(-180, 180);
+
+    double driveReduction = 1.0 / 6.75;
+    double WHEEL_DIAMETER = 0.1016;
+    double rotationsToDistance = driveReduction * WHEEL_DIAMETER * Math.PI;
+
+    SparkBaseConfig angleMotorConfig = new SparkMaxConfig();
+        angleMotorConfig
+          .inverted(angleMotorReversed)
+          .idleMode(IdleMode.kBrake);
+        angleMotorConfig.absoluteEncoder
+          .positionConversionFactor(1)
+          .velocityConversionFactor(1)
+          .inverted(angleEncoderReversed);
+
+    SparkBaseConfig speedMotorConfig = new SparkMaxConfig();
+        speedMotorConfig
+          .inverted(driveMotorReversed)
+          .idleMode(IdleMode.kBrake);
+        speedMotorConfig.encoder
+          .positionConversionFactor(rotationsToDistance)
+          .velocityConversionFactor(rotationsToDistance/60);
+
+    this.speedEncoder = this.speedMotor.getEncoder();
+    
+    //angleMotor.setSmartCurrentLimit(DriveConstants.currentLimit);
+    //speedMotor.setSmartCurrentLimit(DriveConstants.currentLimit);
+
+    //this.encoder.setZeroOffset(angleEncoderOffset);
   }
 
-  public SwerveModuleThingy(SwerveModuleConfig config, double maxVelocity, double maxVoltage) {
+  public SwerveModule(SwerveModuleConfig config, double maxVelocity, double maxVoltage) {
     this(config.angleMotorId,
         config.driveMotorId,
         config.driveMotorReversed,
@@ -78,9 +85,6 @@ public class SwerveModuleThingy {
         config.angleEncoderOffset,
         maxVelocity,
         maxVoltage);
-
-    //angleMotor.setSmartCurrentLimit(DriveConstants.currentLimit);
-    //speedMotor.setSmartCurrentLimit(DriveConstants.currentLimit);
   }
 
   /**
@@ -121,7 +125,7 @@ public class SwerveModuleThingy {
    *         Straight Forward should be 0 (with the addjustment of module offset)
    */
   public double getEncoder() {
-    return this.angleMotor.getEncoder().getPosition() * 360;
+    return encoder.getPosition() * 360.0;
   }
 
   /*

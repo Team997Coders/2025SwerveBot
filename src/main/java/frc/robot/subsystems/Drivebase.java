@@ -5,9 +5,8 @@
 package frc.robot.subsystems;
 
 import com.studica.frc.AHRS;
-import swervelib.SwerveModuleThingy;
-import swervelib.SwerveModuleConfig;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+
+import swervelib.SwerveModule;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -19,7 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -38,21 +37,19 @@ public class Drivebase extends SubsystemBase {
 
   private AHRS gyro;
 
-  private SwerveModuleThingy frontLeft = new SwerveModuleThingy(SwerveModules.frontLeft, MAX_VELOCITY, MAX_VOLTAGE);
-  private SwerveModuleThingy frontRight = new SwerveModuleThingy(SwerveModules.frontRight, MAX_VELOCITY, MAX_VOLTAGE);
-  private SwerveModuleThingy backLeft = new SwerveModuleThingy(SwerveModules.backLeft, MAX_VELOCITY, MAX_VOLTAGE);
-  private SwerveModuleThingy backRight = new SwerveModuleThingy(SwerveModules.backRight, MAX_VELOCITY, MAX_VOLTAGE);
+  private SwerveModule frontLeft = new SwerveModule(SwerveModules.frontLeft, MAX_VELOCITY, MAX_VOLTAGE);
+  private SwerveModule frontRight = new SwerveModule(SwerveModules.frontRight, MAX_VELOCITY, MAX_VOLTAGE);
+  private SwerveModule backLeft = new SwerveModule(SwerveModules.backLeft, MAX_VELOCITY, MAX_VOLTAGE);
+  private SwerveModule backRight = new SwerveModule(SwerveModules.backRight, MAX_VELOCITY, MAX_VOLTAGE);
 
   //                                                       0           1          2         3
-  private SwerveModuleThingy[] modules = new SwerveModuleThingy[] { frontLeft, frontRight, backLeft, backRight };
+  private SwerveModule[] modules = new SwerveModule[] { frontLeft, frontRight, backLeft, backRight };
 
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
       ModuleLocations.frontLeft,
       ModuleLocations.frontRight,
       ModuleLocations.backLeft,
       ModuleLocations.backRight);
-
-  private SwerveDrivePoseEstimator poseEstimator;
 
   private SwerveDriveOdometry odometry;
 
@@ -61,28 +58,18 @@ public class Drivebase extends SubsystemBase {
   private SlewRateLimiter slewRateX = new SlewRateLimiter(DriveConstants.slewRate);
   private SlewRateLimiter slewRateY = new SlewRateLimiter(DriveConstants.slewRate);
 
-  private static XboxController driveStick = new XboxController(0);
-
   private BooleanEntry fieldOrientedEntry;
 
-  private Camera frontCamera;
-  private Camera backCamera;
-
   /** Creates a new Drivebase. */
-  public Drivebase(AHRS gyro, Camera frontCamera, Camera backCamera) {
+  public Drivebase(AHRS gyro) {
     var inst = NetworkTableInstance.getDefault();
     var table = inst.getTable("SmartDashboard");
     this.fieldOrientedEntry = table.getBooleanTopic("Field Oriented").getEntry(true);
+
     this.gyro = gyro;
+    odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d(), getPositions());
 
-    odometry = new SwerveDriveOdometry(kinematics, new Rotation2d(), getPositions());
-
-    poseEstimator = new SwerveDrivePoseEstimator(kinematics, new Rotation2d(), getPositions(), odometry.getPoseMeters());
-
-    this.frontCamera = frontCamera;
-    this.backCamera = backCamera;
-    
-    SmartDashboard.putData("Field", field);        
+    SmartDashboard.putData("Field", field);
   }
 
   public double getFieldAngle() {
@@ -143,11 +130,11 @@ public class Drivebase extends SubsystemBase {
   }
 
   public Pose2d getPose() {
-    return poseEstimator.getEstimatedPosition();
+    return odometry.getPoseMeters();
   }
 
   public void resetPose(Pose2d pose2d) {
-    poseEstimator.resetPosition(gyro.getRotation2d(), getPositions(), pose2d);
+    odometry.resetPosition(gyro.getRotation2d(), getPositions(), pose2d);
   }
 
   public ChassisSpeeds getCurrentSpeeds() {
@@ -172,14 +159,27 @@ public class Drivebase extends SubsystemBase {
 
   @Override
   public void periodic() {
-
     var positions = getPositions();
 
     odometry.update(gyro.getRotation2d(), positions);
+    var pose = getPose();
 
-    poseEstimator.update(gyro.getRotation2d(), positions);
-    
-    this.frontCamera.update(poseEstimator);
-    this.backCamera.update(poseEstimator);
+    var translation = pose.getTranslation();
+    var x = translation.getX();
+    var y = translation.getY();
+    var rotation = pose.getRotation().getDegrees();
+    SmartDashboard.putNumber("x", x);
+    SmartDashboard.putNumber("y", y);
+    SmartDashboard.putNumber("rot", rotation);
+    field.setRobotPose(getPose());
+
+    Shuffleboard.selectTab("Drive");
+    SmartDashboard.putNumber("module output", modules[0].getDriveOutput());
+
+    // This method will be called once per scheduler run
+    SmartDashboard.putNumber("FL Encoder", frontLeft.getEncoder());
+    SmartDashboard.putNumber("FR Encoder", frontRight.getEncoder());
+    SmartDashboard.putNumber("BR Encoder", backRight.getEncoder());
+    SmartDashboard.putNumber("BL Encoder", backLeft.getEncoder());
   }
 }

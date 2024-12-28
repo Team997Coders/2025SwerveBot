@@ -27,7 +27,7 @@ public final class Constants {
     public static final double slewRate = 20; // lower number for higher center of mass
 
     public static final class SwervePID {
-      public static final double p = 0.01; //0.052
+      public static final double p = 0.01;//0.052;
       public static final double i = 0;
       public static final double d = 0;
     }
@@ -42,10 +42,8 @@ public final class Constants {
           true,
           false,
           1,
-          //0.303 //apollo
-          //.462 //swervebot
-          0
-          );
+          //.462
+          0);
 
       // Front Right
       public static final SwerveModuleConfig frontRight= new SwerveModuleConfig(
@@ -55,10 +53,8 @@ public final class Constants {
           true,
           false,
           1,
-          //0.966 //apollo
-          //0 //swervebot 
-          0
-          );
+          //0
+          0);
 
       // Back Right
       public static final SwerveModuleConfig backRight = new SwerveModuleConfig(
@@ -68,10 +64,8 @@ public final class Constants {
           true,
           false,
           1,
-          //0.485 //apollo
-          //0.759 //swervebot
-          0
-          );
+          //.759
+          0);
 
       // Back Left
       public static final SwerveModuleConfig backLeft = new SwerveModuleConfig(
@@ -81,9 +75,7 @@ public final class Constants {
           true,
           false,
           1,
-          //0.199 //apollo 
-          //0.158 // swervebot
-          //encoder offsets -> 0 to 1
+          //.158 // 0 to 1
           0
       );
     }
@@ -96,6 +88,32 @@ public final class Constants {
       public static final Translation2d backLeft = new Translation2d(-dist, dist);
       public static final Translation2d backRight = new Translation2d(-dist, -dist);
     }
+  }
+
+  public static final class IntakeConstants {
+    public static final int intakeMotorId = 15;
+    public static final int indexMotorId = 10;
+    public static final double indexSpeed = 0.4;
+    public static final double intakeSpeed = 0.7;
+    public static final int noteSensorId = 0;
+
+    public static final int currentLimit = 30;
+  }
+
+  public static final class ClimberConstants {
+    public static final int leftClimberMotorId = 16;
+    public static final int rightClimberMotorId = 14;
+    public static final int leftClimberSensorId = 2;
+    public static final int rightClimberSensorId = 3;
+  }
+
+  public static final class ShooterConstants {
+    public static final int leftShootMotorID = 11;
+    public static final int rightShootMotorID = 12;
+    public static final double shooterSpeed = -1;
+
+    public static final double targetFlywheelVelocity = 3700;
+    public static final int currentLimit = 50;
   }
 
   public static final class AutoConstants {
