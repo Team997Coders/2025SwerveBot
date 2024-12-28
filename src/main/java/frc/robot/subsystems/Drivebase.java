@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.studica.frc.AHRS;
 
 import swervelib.SwerveModule;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.DriveConstants.ModuleLocations;
 import frc.robot.Constants.DriveConstants.SwerveModules;
+import frc.robot.subsystems.vision.CameraBlock;
 
 public class Drivebase extends SubsystemBase {
   private final double DRIVE_REDUCTION = 1.0 / 6.75;
@@ -51,6 +53,8 @@ public class Drivebase extends SubsystemBase {
       ModuleLocations.backLeft,
       ModuleLocations.backRight);
 
+  private SwerveDrivePoseEstimator poseEstimator;
+
   private SwerveDriveOdometry odometry;
 
   private Field2d field = new Field2d();
@@ -60,14 +64,20 @@ public class Drivebase extends SubsystemBase {
 
   private BooleanEntry fieldOrientedEntry;
 
+  private CameraBlock cameraBlock;
+
   /** Creates a new Drivebase. */
-  public Drivebase(AHRS gyro) {
+  public Drivebase(AHRS gyro, CameraBlock cameraBlock) {
     var inst = NetworkTableInstance.getDefault();
     var table = inst.getTable("SmartDashboard");
     this.fieldOrientedEntry = table.getBooleanTopic("Field Oriented").getEntry(true);
 
     this.gyro = gyro;
+    this.cameraBlock = cameraBlock;
+
     odometry = new SwerveDriveOdometry(kinematics, gyro.getRotation2d(), getPositions());
+
+    poseEstimator = new SwerveDrivePoseEstimator(kinematics, gyro.getRotation2d(), getPositions(), odometry.getPoseMeters());
 
     SmartDashboard.putData("Field", field);
   }
@@ -160,26 +170,13 @@ public class Drivebase extends SubsystemBase {
   @Override
   public void periodic() {
     var positions = getPositions();
+    var rotation = gyro.getRotation2d();
 
-    odometry.update(gyro.getRotation2d(), positions);
-    var pose = getPose();
+    odometry.update(rotation, positions);
 
-    var translation = pose.getTranslation();
-    var x = translation.getX();
-    var y = translation.getY();
-    var rotation = pose.getRotation().getDegrees();
-    SmartDashboard.putNumber("x", x);
-    SmartDashboard.putNumber("y", y);
-    SmartDashboard.putNumber("rot", rotation);
-    field.setRobotPose(getPose());
+    poseEstimator.update(rotation, positions);
 
-    Shuffleboard.selectTab("Drive");
-    SmartDashboard.putNumber("module output", modules[0].getDriveOutput());
+    this.cameraBlock.update(poseEstimator);
 
-    // This method will be called once per scheduler run
-    SmartDashboard.putNumber("FL Encoder", frontLeft.getEncoder());
-    SmartDashboard.putNumber("FR Encoder", frontRight.getEncoder());
-    SmartDashboard.putNumber("BR Encoder", backRight.getEncoder());
-    SmartDashboard.putNumber("BL Encoder", backLeft.getEncoder());
   }
 }

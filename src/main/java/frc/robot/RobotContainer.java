@@ -7,10 +7,22 @@ package frc.robot;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.Drive;
 import frc.robot.subsystems.Drivebase;
+import frc.robot.subsystems.vision.Camera;
+import frc.robot.subsystems.vision.CameraBlock;
+
+import java.util.Arrays;
+import java.util.List;
 
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.XboxController;
@@ -36,8 +48,6 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final AHRS gyro = new AHRS(NavXComType.kMXP_SPI);
 
-  private final Drivebase drivebase = new Drivebase(gyro);
-
   private static XboxController driveStick = new XboxController(0);
 
   // private static CommandXboxController c_driveStick2 = new
@@ -45,6 +55,13 @@ public class RobotContainer {
   private static CommandXboxController c_driveStick = new CommandXboxController(0);
 
   private SendableChooser<Command> autoChooser;
+
+  private static final Camera frontCamera = new Camera("pineapple", new Transform3d(new Translation3d(0.254, 0, 0.1524), new Rotation3d(0, -0.785, 0)));
+  private static final Camera backCamera = new Camera("dragonfruit", new Transform3d(new Translation3d(-0.254, 0, 0.1524), new Rotation3d(Math.PI, -0.785, 0)));
+
+  private static final CameraBlock cameraBlock = new CameraBlock(Arrays.asList(frontCamera, backCamera));
+
+  private final Drivebase drivebase = new Drivebase(gyro, cameraBlock);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
