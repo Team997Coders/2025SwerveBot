@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.Drive;
+import frc.robot.commands.goToTag;
 import frc.robot.subsystems.Drivebase;
 import frc.robot.subsystems.vision.Camera;
 import frc.robot.subsystems.vision.CameraBlock;
@@ -13,6 +14,7 @@ import frc.robot.subsystems.vision.CameraBlock;
 import java.util.Arrays;
 import java.util.List;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
@@ -33,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -73,6 +76,9 @@ public class RobotContainer {
             drivebase,
             () -> getScaledXY(),
             () -> scaleRotationAxis(driveStick.getRawAxis(4))));
+
+    autoChooser = AutoBuilder.buildAutoChooser("Leave");
+    SmartDashboard.putData("Auto Choser", autoChooser);
 
     configureBindings();
   }
@@ -168,13 +174,10 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // Gyro Reset
-    c_driveStick.povUp().onTrue(Commands.runOnce(gyro::reset));
-
-    // Intake
-
-    // Codriver climb controls
-    // c_driveStick2.y().whileTrue(new Climb(climber, 1));
-    // c_driveStick2.a().whileTrue(new Climb(climber, -1));
+    //c_driveStick.povUp().onTrue(Commands.runOnce(gyro::reset));
+    Command goToTag = new goToTag(drivebase, frontCamera, 2.0);
+    JoystickButton button_a = new JoystickButton(driveStick, 1);
+    button_a.onTrue(goToTag);
   }
 
   /**

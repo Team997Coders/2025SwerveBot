@@ -178,5 +178,8 @@ public class Drivebase extends SubsystemBase {
 
     this.cameraBlock.update(poseEstimator);
 
+    this.cameraBlock.troubleShoot();
+
+    field.setRobotPose(poseEstimator.getEstimatedPosition());
   }
 }
