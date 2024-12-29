@@ -88,6 +88,7 @@ public class Drivebase extends SubsystemBase {
     try{
       config = RobotConfig.fromGUISettings();
     } catch (Exception e) {
+      // Handle exception as needed
       e.printStackTrace();
       config = null;
     }
