@@ -4,6 +4,10 @@
 
 package frc.robot.subsystems;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.studica.frc.AHRS;
 
 import swervelib.SwerveModule;
@@ -19,6 +23,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -79,7 +84,41 @@ public class Drivebase extends SubsystemBase {
 
     poseEstimator = new SwerveDrivePoseEstimator(kinematics, gyro.getRotation2d(), getPositions(), odometry.getPoseMeters());
 
+    RobotConfig config;
+    try{
+      config = RobotConfig.fromGUISettings();
+    } catch (Exception e) {
+      e.printStackTrace();
+      config = null;
+    }
+
+    // Configure AutoBuilder last
+    AutoBuilder.configure(
+            this::getPose, // Robot pose supplier
+            this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+            this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+            (speeds, feedforwards) -> drive(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+            new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+                    new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                    new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+            ),
+            config, // The robot configuration
+            () -> {
+              var alliance = DriverStation.getAlliance();
+              if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+              }
+              return false;
+            },
+            this // Reference to this subsystem to set requirements
+    );
+
     SmartDashboard.putData("Field", field);
+  }
+
+  public ChassisSpeeds getRobotRelativeSpeeds()
+  {
+    return kinematics.toChassisSpeeds(getModuleStates());
   }
 
   public double getFieldAngle() {
