@@ -1,61 +1,61 @@
 {
-  "version": 1.0,
-  "startingPose": {
-    "position": {
-      "x": 1.406426755846387,
-      "y": 5.537862667174266
-    },
-    "rotation": 0
-  },
+  "version": "2025.0",
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Shoot"
+            "pathName": "rotato2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Center Note Speaker"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
+            "pathName": "unrotato2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Stage Note Red"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
+            "pathName": "rotato2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Stage Note Blue"
+            "pathName": "unrotato2"
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Shoot"
+            "pathName": "rotato2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "unrotato2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "rotato2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "unrotato2"
           }
         }
       ]
     }
   },
-  "folder": "Speaker",
+  "resetOdom": true,
+  "folder": null,
   "choreoAuto": false
 }

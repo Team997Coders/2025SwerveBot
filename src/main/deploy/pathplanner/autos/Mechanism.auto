@@ -1,31 +1,31 @@
 {
-  "version": 1.0,
-  "startingPose": {
-    "position": {
-      "x": 15.865318191443983,
-      "y": 4.319142890067254
-    },
-    "rotation": -119.26799521489274
-  },
+  "version": "2025.0",
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "rotato2"
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "Shoot"
+            "name": "fly"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Shoot and Leave Red"
+            "pathName": "rotato2"
           }
         }
       ]
     }
   },
-  "folder": "Leave",
+  "resetOdom": true,
+  "folder": null,
   "choreoAuto": false
 }

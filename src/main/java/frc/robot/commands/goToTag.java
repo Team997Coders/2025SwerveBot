@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -11,12 +12,13 @@ import com.pathplanner.lib.path.Waypoint;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drivebase;
 import frc.robot.subsystems.vision.Camera;
 
 public class goToTag extends Command {
-
+  
   private Drivebase drivebase;
   private Camera frontCamera;
   private Double radius;
@@ -35,20 +37,23 @@ public class goToTag extends Command {
   public void initialize() {
     if (frontCamera.hasTarget())
     {
-    double theta = frontCamera.robot_to_tag(drivebase).getAngle().getRadians();
-    Transform2d tagOffset = new Transform2d(this.radius*Math.cos(theta), this.radius*Math.sin(theta), new Rotation2d(0));
+    //double theta = frontCamera.robot_to_tag(drivebase).getAngle().getRadians();
+    //Transform2d tagOffset = new Transform2d(this.radius*Math.cos(theta), this.radius*Math.sin(theta), new Rotation2d(0));
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses
     (
       this.drivebase.getPose(),
-      this.frontCamera.get_tag_pose2d().plus(tagOffset)
+      this.frontCamera.get_tag_pose2d()//.plus(tagOffset)
     );
+
     PathPlannerPath path = new PathPlannerPath(
         waypoints,
         new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI), // The constraints for this path.,
         null, // The ideal starting state, this is only relevant for pre-planned paths, so can be null for on-the-fly paths.
-        new GoalEndState(0.0, Rotation2d.fromDegrees(-90)) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
-); // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
-    this.currentPath = AutoBuilder.followPath(path);
+        new GoalEndState(0.0, Rotation2d.fromDegrees(-90))); // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
+    AutoBuilder.followPath(path).schedule();
+    } else 
+    {
+      this.cancel();
     }
   }
 
@@ -56,7 +61,6 @@ public class goToTag extends Command {
   @Override
   public void execute() 
   {
-    this.currentPath.schedule();
   }
 
   // Called once the command ends or is interrupted.

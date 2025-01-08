@@ -98,7 +98,7 @@ public class Camera
 
     public Translation2d robot_to_tag(Drivebase drivebase)
     {
-        if (this.results.isEmpty())
+        if (!this.results.isEmpty())
         {
             PhotonTrackedTarget target = results.get(0).getBestTarget();
             if (target != null)
@@ -115,7 +115,7 @@ public class Camera
 
     public Pose2d get_tag_pose2d()
     {
-        if (this.results.isEmpty())
+        if (!this.results.isEmpty())
         {
             PhotonTrackedTarget target = results.get(0).getBestTarget();
             if (target != null)

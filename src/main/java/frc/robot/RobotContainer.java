@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.Drive;
 import frc.robot.commands.goToTag;
+import frc.robot.commands.stop;
 import frc.robot.subsystems.Drivebase;
 import frc.robot.subsystems.vision.Camera;
 import frc.robot.subsystems.vision.CameraBlock;
@@ -15,6 +16,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.events.PointTowardsZoneTrigger;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
@@ -77,7 +81,7 @@ public class RobotContainer {
             () -> getScaledXY(),
             () -> scaleRotationAxis(driveStick.getRawAxis(4))));
 
-    autoChooser = AutoBuilder.buildAutoChooser("Leave");
+    autoChooser = AutoBuilder.buildAutoChooser("moveForward");
     SmartDashboard.putData("Auto Choser", autoChooser);
 
     configureBindings();
@@ -175,9 +179,10 @@ public class RobotContainer {
   private void configureBindings() {
     // Gyro Reset
     //c_driveStick.povUp().onTrue(Commands.runOnce(gyro::reset));
-    Command goToTag = new goToTag(drivebase, frontCamera, 2.0);
+    Command goToTag = new goToTag(drivebase, frontCamera, 0.0);
+    Command stop = new stop(goToTag);
     JoystickButton button_a = new JoystickButton(driveStick, 1);
-    button_a.onTrue(goToTag);
+    button_a.onTrue(goToTag).onFalse(stop);
   }
 
   /**
@@ -186,7 +191,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return new InstantCommand();
+    return autoChooser.getSelected();
   }
 }
