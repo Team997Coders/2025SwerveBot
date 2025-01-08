@@ -43,9 +43,9 @@ public class Camera
         this.results = null;
     }
 
-    public void update(SwerveDrivePoseEstimator poseEstimator)
+    public void update(SwerveDrivePoseEstimator poseEstimator, List<PhotonPipelineResult> results)
     {
-        this.results = this.camera.getAllUnreadResults();
+        this.results = results;
         SmartDashboard.putNumber("result size", this.results.size());
         if (!this.results.isEmpty())
         {
@@ -71,17 +71,9 @@ public class Camera
         } 
     }
 
-    public int getTagId()
+    public List<PhotonPipelineResult> getResults()
     {
-        if (!this.results.isEmpty())
-        {
-            var target = results.get(0).getBestTarget();
-            if (target != null)
-            {
-                return target.getFiducialId();
-            }
-        }
-        return 0;
+        return this.camera.getAllUnreadResults();
     }
 
     public boolean hasTarget()
