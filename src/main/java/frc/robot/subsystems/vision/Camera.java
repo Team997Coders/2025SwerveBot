@@ -51,18 +51,7 @@ public class Camera
         {
             for (PhotonPipelineResult result: results)
             {
-                
                 Optional<EstimatedRobotPose> estimatedRobotPose = this.photonPoseEstimator.update(result);
-                if (result.hasTargets())
-                {
-                    SmartDashboard.putNumber("has result", 1);
-                    SmartDashboard.putNumber("estimated x", estimatedRobotPose.orElseThrow().estimatedPose.toPose2d().getX());
-                    SmartDashboard.putNumber("estimated Y", estimatedRobotPose.orElseThrow().estimatedPose.toPose2d().getY());
-                    SmartDashboard.putNumber("estimated Theta", estimatedRobotPose.orElseThrow().estimatedPose.toPose2d().getRotation().getDegrees());
-                } else
-                {
-                    SmartDashboard.putNumber("has result", 0);
-                }
                 if (estimatedRobotPose.isPresent())
                 {
                     poseEstimator.addVisionMeasurement(estimatedRobotPose.orElseThrow().estimatedPose.toPose2d(), result.getTimestampSeconds());
