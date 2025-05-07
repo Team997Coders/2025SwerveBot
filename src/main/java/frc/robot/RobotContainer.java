@@ -5,22 +5,23 @@
 package frc.robot;
 
 import frc.robot.Constants.DriveConstants;
-import frc.robot.commands.Drive;
-import frc.robot.commands.goToTag;
+//import frc.robot.commands.Drive;
+// import frc.robot.commands.goToTag;
 import frc.robot.commands.stop;
-import frc.robot.subsystems.Drivebase;
-import frc.robot.subsystems.vision.Camera;
-import frc.robot.subsystems.vision.CameraBlock;
+// import frc.robot.subsystems.Drivebase;
+//import frc.robot.subsystems.vision.Camera;
+//import frc.robot.subsystems.vision.CameraBlock;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.spi.CalendarNameProvider;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.events.PointTowardsZoneTrigger;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.studica.frc.AHRS;
-import com.studica.frc.AHRS.NavXComType;
+// import com.pathplanner.lib.auto.AutoBuilder;
+// import com.pathplanner.lib.commands.PathPlannerAuto;
+// import com.pathplanner.lib.events.PointTowardsZoneTrigger;
+// import com.pathplanner.lib.path.PathPlannerPath;
+//  import com.studica.frc.AHRS;
+//  import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -42,6 +43,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
+import com.reduxrobotics.canand.CanandEventLoop;
+
 /**
  * This class is where the bulk of the robot should be declared. Since
  * Command-based is a
@@ -53,7 +56,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final AHRS gyro = new AHRS(NavXComType.kMXP_SPI);
+ // private final AHRS gyro = new AHRS(NavXComType.kMXP_SPI);
 
   private static XboxController driveStick = new XboxController(0);
 
@@ -63,28 +66,31 @@ public class RobotContainer {
 
   private SendableChooser<Command> autoChooser;
 
-  private static final Camera frontCamera = new Camera("pineapple", new Transform3d(new Translation3d(0.254, 0, 0.1524), new Rotation3d(0, -0.785, 0)));
-  private static final Camera backCamera = new Camera("dragonfruit", new Transform3d(new Translation3d(-0.254, 0, 0.1524), new Rotation3d(Math.PI, -0.785, 0)));
+  // private static final Camera frontCamera = new Camera("pineapple", new Transform3d(new Translation3d(0.254, 0, 0.1524), new Rotation3d(0, -0.785, 0)));
+  // private static final Camera backCamera = new Camera("dragonfruit", new Transform3d(new Translation3d(-0.254, 0, 0.1524), new Rotation3d(Math.PI, -0.785, 0)));
 
-  private static final CameraBlock cameraBlock = new CameraBlock(Arrays.asList(frontCamera, backCamera));
+  // private static final CameraBlock cameraBlock = new CameraBlock(Arrays.asList(frontCamera, backCamera));
 
-  private final Drivebase drivebase = new Drivebase(gyro, cameraBlock);
+ // private final Drivebase drivebase = new Drivebase( cameraBlock);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
     // Configure the trigger bindings
-    drivebase.setDefaultCommand(
-        new Drive(
-            drivebase,
-            () -> getScaledXY(),
-            () -> scaleRotationAxis(driveStick.getRawAxis(4))));
+    // drivebase.setDefaultCommand(
+    //     new Drive(
+    //         drivebase,
+    //         () -> getScaledXY(),
+    //         () -> scaleRotationAxis(driveStick.getRawAxis(4))));
 
-    autoChooser = AutoBuilder.buildAutoChooser("moveForward");
+   // autoChooser = AutoBuilder.buildAutoChooser("moveForward");
     SmartDashboard.putData("Auto Choser", autoChooser);
 
     configureBindings();
+
+    CanandEventLoop.getInstance();
+
   }
 
   /**
@@ -113,7 +119,7 @@ public class RobotContainer {
     double theta = Math.atan2(xy[1], xy[0]);
 
     // Square radius and scale by max velocity
-    r = r * r * drivebase.getMaxVelocity();
+    r = r * r ;//drivebase.getMaxVelocity();
 
     // Convert to Cartesian coordinates
     xy[0] = r * Math.cos(theta);
@@ -139,19 +145,19 @@ public class RobotContainer {
 
   @SuppressWarnings("unused")
   private double scaleTranslationAxis(double input) {
-    return deadband(-squared(input), DriveConstants.deadband) * drivebase.getMaxVelocity();
+    return deadband(-squared(input), DriveConstants.deadband) ;//* drivebase.getMaxVelocity();
   }
 
   private double scaleRotationAxis(double input) {
-    return deadband(squared(input), DriveConstants.deadband) * drivebase.getMaxAngleVelocity() * -0.6;
+    return deadband(squared(input), DriveConstants.deadband) ;//* drivebase.getMaxAngleVelocity() * -0.6;
   }
 
   public void resetGyro() {
-    gyro.reset();
+ //   gyro.reset();
   }
 
   public double getGyroYaw() {
-    return -gyro.getYaw();
+    return 0; //-gyro.getYaw();
   }
 
   public boolean onBlueAlliance() {
@@ -179,10 +185,10 @@ public class RobotContainer {
   private void configureBindings() {
     // Gyro Reset
     //c_driveStick.povUp().onTrue(Commands.runOnce(gyro::reset));
-    Command goToTag = new goToTag(drivebase, frontCamera, 0.0);
-    Command stop = new stop(goToTag);
+   // Command goToTag = new goToTag(drivebase, frontCamera, 0.0);
+   // Command stop = new stop(goToTag);
     JoystickButton button_a = new JoystickButton(driveStick, 1);
-    button_a.onTrue(goToTag).onFalse(stop);
+   // button_a.onTrue(goToTag).onFalse(stop);
   }
 
   /**
